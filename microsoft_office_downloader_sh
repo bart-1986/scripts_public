@@ -1,0 +1,26 @@
+#!/bin/bash
+#(c) bart
+#2024-09-18
+#v1
+version=$(osascript -e 'display dialog "Please enter version number." default answer "16.89.24091630" with title "Microsoft Office downloader" buttons {"OK"} default button "OK"' -e 'text returned of result')
+
+chosen_apps=$(osascript <<EOF
+set app_list to {"Excel", "OneNote", "Outlook", "PowerPoint", "Word"}
+set chosen_apps to choose from list app_list with multiple selections allowed with title "Please select apps"
+if chosen_apps is false then
+    return "User canceled"
+else
+    return chosen_apps
+end if
+EOF
+)
+
+selection=$(echo $chosen_apps | awk -F", " '{ for(i=1; i<=NF; i++) print $i }')
+
+for i in ${selection[@]}; do
+    if [[ $i = "OneNote" ]]; then
+        curl -o ~/Downloads/Microsoft_"$i"_"$version"_Updater.pkg https://officecdnmac.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/Microsoft_"$i"_"$version"_Updater.pkg
+    else
+        curl -o ~/Downloads/Microsoft_"$i"_"$version"_Installer.pkg https://officecdnmac.microsoft.com/pr/C1297A47-86C4-4C1F-97FA-950631F94777/MacAutoupdate/Microsoft_"$i"_"$version"_Installer.pkg
+    fi
+done
